@@ -2,8 +2,8 @@
 
 ## Trabalho Prático: Detecção de Bad Smells e Refatoração Segura
 
-**Aluno:** Pedro Augusto Santos Seabra
-**Matrícula:** 812784
+**Aluno:** Pedro Augusto Santos Seabra\
+**Matrícula:** 812784\
 **Repositório:** https://github.com/pedroseabra27/bad-smells-js-refactoring
 
 ---
@@ -28,7 +28,7 @@ A pergunta `reportType === 'CSV' / 'HTML'` aparece **4 vezes** (cabeçalho, corp
 
 ### 1.3 Código Duplicado + Números Mágicos
 
-- As linhas `report += \`${item.id},${item.name},${item.value},${user.name}\n\`` e `total += item.value` estão copiadas nos ramos do ADMIN e do USER, e `total += item.value` aparece 4 vezes.
+- A linha que monta o CSV (`` `${item.id},${item.name},${item.value},${user.name}\n` ``) está copiada nos ramos do ADMIN e do USER, e `total += item.value` aparece 4 vezes.
 - Os valores `1000` (limite de prioridade) e `500` (limite do usuário comum), além das strings `'ADMIN'`, `'USER'`, `'CSV'`, `'HTML'`, aparecem soltos no código, sem nome.
 
 - **Manutenção:** se o formato da linha CSV mudar, é preciso lembrar de alterar as duas cópias. Se o limite de 500 mudar, é preciso adivinhar o que aquele número significa e procurá-lo pelo código.
@@ -52,17 +52,9 @@ Configuração usada (`.eslintrc.json`), com as regras recomendadas do SonarJS:
 }
 ```
 
-Resultado de `npx eslint src/` **antes** da refatoração:
+Resultado de `npx eslint src/ReportGenerator.js` **antes** da refatoração:
 
-> **[INSERIR AQUI O PRINT DO TERMINAL]**
-
-```
-src/ReportGenerator.js
-  11:3   error  Refactor this function to reduce its Cognitive Complexity from 27 to the 5 allowed  sonarjs/cognitive-complexity
-  43:14  error  Merge this if statement with the nested one                                         sonarjs/no-collapsible-if
-
-✖ 2 problems (2 errors, 0 warnings)
-```
+![Figura 1: ESLint no código original (2 erros)](img/print1_eslint_antes.png)
 
 **Como o SonarJS ajudou:**
 
@@ -82,19 +74,12 @@ O smell mais crítico era a **condicional complexa e repetida** (formato × perf
 generateReport(reportType, user, items) {
   let report = '';
   let total = 0;
-
-  if (reportType === 'CSV') {
-    report += 'ID,NOME,VALOR,USUARIO\n';
-  } else if (reportType === 'HTML') {
-    report += '<html><body>\n';
-    /* ... */
-  }
+  if (reportType === 'CSV') { /* cabeçalho CSV */ }
+  else if (reportType === 'HTML') { /* cabeçalho HTML */ }
 
   for (const item of items) {
     if (user.role === 'ADMIN') {
-      if (item.value > 1000) {
-        item.priority = true;
-      }
+      if (item.value > 1000) { item.priority = true; }
       if (reportType === 'CSV') {
         report += `${item.id},${item.name},${item.value},${user.name}\n`;
         total += item.value;
@@ -115,10 +100,8 @@ generateReport(reportType, user, items) {
       }
     }
   }
-
   if (reportType === 'CSV') { /* rodapé CSV */ }
   else if (reportType === 'HTML') { /* rodapé HTML */ }
-
   return report.trim();
 }
 ```
@@ -183,9 +166,13 @@ generateReport(reportType, user, items) {
 | Repetições de `if (reportType === ...)` | 4 | 0 |
 | Testes da suíte (arquivo refatorado) | — | **5/5 passando** |
 
-Resultado de `npx eslint src/ReportGenerator.refactored.js`: **nenhum erro** (saída vazia).
+Resultado de `npx eslint src/ReportGenerator.refactored.js`: **nenhum erro** (o ESLint não imprime nada; a mensagem "ESLint: 0 erros" vem do `echo` executado em seguida).
 
-> **[INSERIR AQUI O PRINT DO `npx eslint src/ReportGenerator.refactored.js` E DO `npm test`]**
+![Figura 2: ESLint no código refatorado (0 erros)](img/print2_eslint_depois.png)
+
+Resultado de `npm test` para o arquivo refatorado (rede de segurança):
+
+![Figura 3: Testes do código refatorado (5/5 passando)](img/print3_testes.png)
 
 ---
 
