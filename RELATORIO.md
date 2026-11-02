@@ -1,4 +1,4 @@
-# [NOME DA DISCIPLINA]
+# Teste de Software
 
 ## Trabalho Prático: Detecção de Bad Smells e Refatoração Segura
 
